@@ -178,6 +178,7 @@ StringCase.prototype.first = function (flags) { return someFlags(this.myFirstFla
 StringCase.prototype.second = function (flags) { return someFlags(this.mySecondFlags, flags) && onlyFlags(this.mySecondFlags, flags); };
 StringCase.prototype.last = function (flags) { return someFlags(this.myLastFlags, flags) && onlyFlags(this.myLastFlags, flags); };
 StringCase.prototype.identifier = function () { return this.only(LOWER | UPPER | DIGITS | UNDER) && this.first(LOWER | UPPER | UNDER); };
+StringCase.prototype.isMixedCamelCase = function () { return this.only(LOWER | UPPER | DIGITS) && this.all(LOWER | UPPER) && this.first(LOWER | UPPER); };
 StringCase.prototype.isMixedSnakeCase = function () { return this.only(UNDER | LOWER | UPPER | DIGITS) && this.all(UNDER | LOWER | UPPER) && this.first(LOWER | UPPER); };
 StringCase.prototype.isMixedDashCase = function () { return this.only(DASH | UPPER | LOWER | DIGITS) && this.all(DASH | UPPER | LOWER) && this.first(DASH | UPPER | LOWER); };
 StringCase.prototype.isMixedDotCase = function () { return this.only(DOT | UPPER | LOWER | DIGITS) && this.all(DOT | UPPER | LOWER) && this.first(DOT | UPPER | LOWER); };
@@ -192,10 +193,8 @@ StringCase.prototype.isSnakeCase = function () { return this.only(UNDER | LOWER 
 StringCase.prototype.isDashCase = function () { return this.only(DASH | LOWER | DIGITS) && this.all(DASH | LOWER) && this.first(DASH | LOWER); };
 StringCase.prototype.isDotCase = function () { return this.only(DOT | LOWER | DIGITS) && this.all(DOT | LOWER) && this.first(DOT | LOWER); };
 StringCase.prototype.isSlashCase = function () { return this.only(SLASH | LOWER | DIGITS) && this.all(SLASH | LOWER) && this.first(SLASH | LOWER); };
-StringCase.prototype.isProperSpaceCapsCase = function () { return this.only(SPACE | UPPER | LOWER | DIGITS) && this.all(SPACE | UPPER | LOWER) && this.first(UPPER); };
 StringCase.prototype.isCapitalizedSpaceCase = function () { return this.only(SPACE | UPPER | LOWER | DIGITS) && this.all(SPACE | UPPER | LOWER) && this.first(UPPER); };
 StringCase.prototype.isSpaceCase = function () { return this.only(SPACE | LOWER | DIGITS) && this.all(SPACE | LOWER) && this.first(LOWER); };
-StringCase.prototype.isCamelCase = function () { return this.only(LOWER | UPPER | DIGITS) && this.all(LOWER | UPPER) && this.first(LOWER | UPPER); };
 StringCase.prototype.hasNoUpperCase = function () { return this.none(UPPER | EMPTY); };
 StringCase.prototype.hasNoLowerCase = function () { return this.none(LOWER | EMPTY); };
 StringCase.prototype.hasUpperCase = function () { return this.some(UPPER); };
@@ -203,8 +202,8 @@ StringCase.prototype.hasLowerCase = function () { return this.some(LOWER); };
 StringCase.prototype.hasLowerCaseOrUpperCase = function () { return this.some(LOWER | UPPER); };
 StringCase.prototype.isLowerCase = function () { return this.is(LOWER); };
 StringCase.prototype.isUpperCase = function () { return this.is(UPPER); };
-StringCase.prototype.isProperCamelCase = function () { return this.isCamelCase() && this.first(LOWER); };
-StringCase.prototype.isPascalCase = function () { return this.isCamelCase() && this.first(UPPER) && this.second(LOWER); };
+StringCase.prototype.isCamelCase = function () { return this.isMixedCamelCase() && this.first(LOWER); };
+StringCase.prototype.isPascalCase = function () { return this.isMixedCamelCase() && this.first(UPPER) && this.second(LOWER); };
 
 StringCase.prototype.makeMixedSeparatorCase = function (separator, properCaps = undefined) {
     if (isNumeric(separator)) {
@@ -212,10 +211,11 @@ StringCase.prototype.makeMixedSeparatorCase = function (separator, properCaps = 
     }
 
     const iMax = this.original.length;
-    const separators = this.mySeparators | asciiFlags(separator);  // add requested separator to our separators
+    const separatorFlags = separator === "" ? 0 : asciiFlags(separator);
+    const separators = this.mySeparators | separatorFlags;  // add requested separator to our separators
 
-    let removeSeparator = (asciiFlags(separator) & separators) !== 0;
-    let wasLower = false;
+    let removeSeparator = (separatorFlags & separators) !== 0;
+    let wasLower = properCaps;
     let sb = "";
     let toUpper = false;
 
@@ -225,7 +225,7 @@ StringCase.prototype.makeMixedSeparatorCase = function (separator, properCaps = 
 
         if ((separators & asciiFlags(c)) !== 0) {
             sb += separator;
-            toUpper = properCaps;
+            toUpper = true;
             wasLower = false;
         } else {
             if (toUpper) {
@@ -440,7 +440,7 @@ StringCase.prototype.canBeCapitalizedSpaceCase = function () {
 StringCase.prototype.canBeCamelCase = function () {
     if (this.only(this.mySeparators | UPPER | LOWER | DIGITS) && this.some(LOWER | UPPER) && this.first(this.mySeparators | LOWER | UPPER)) {
         const word = this.makeCamelCase();
-        return word !== this.original && StringCase.of(word, this.mySeparators).isCamelCase();
+        return word !== this.original && StringCase.of(word, this.mySeparators).isMixedCamelCase();
     }
     return false;
 };
@@ -448,7 +448,7 @@ StringCase.prototype.canBeCamelCase = function () {
 StringCase.prototype.canBeProperCamelCase = function () {
     if (this.only(this.mySeparators | UPPER | LOWER | DIGITS) && this.some(LOWER | UPPER) && this.first(this.mySeparators | LOWER | UPPER)) {
         const word = this.makeProperCamelCase();
-        return word !== this.original && StringCase.of(word, this.mySeparators).isProperCamelCase();
+        return word !== this.original && StringCase.of(word, this.mySeparators).isCamelCase();
     }
     return false;
 };

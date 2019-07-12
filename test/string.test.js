@@ -4,6 +4,48 @@ const each = require('jest-each').default;
 const StringCase = require('util-string-case').default;
 const StudiedWord = StringCase;
 
+test(`makeMixedSeparatorCase(properCaps = true)`, () => {
+    expect(StringCase.of('', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('');
+    expect(StringCase.of('aA', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('aA');
+    expect(StringCase.of('Aa', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('Aa');
+    expect(StringCase.of('123aA', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('123aA');
+    expect(StringCase.of('123Aa', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('123aa');
+    expect(StringCase.of('123a', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('123a');
+    expect(StringCase.of('A', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('A');
+    expect(StringCase.of('_a', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('A');
+    expect(StringCase.of('_123a', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('123a');
+    expect(StringCase.of('_123', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('123');
+    expect(StringCase.of('123', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('123');
+    expect(StringCase.of('a', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('a');
+    expect(StringCase.of('A', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('A');
+    expect(StringCase.of('_A', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('A');
+    expect(StringCase.of('_123A', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('123a');
+    expect(StringCase.of('_A', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('A');
+    expect(StringCase.of('abc_def', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('abcDef');
+    expect(StringCase.of('abc12def', StringCase.UNDER).makeMixedSeparatorCase('', true)).toBe('abc12def');
+});
+
+test(`makeMixedSeparatorCase(properCaps = false)`, () => {
+    expect(StringCase.of('', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('');
+    expect(StringCase.of('aA', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('aA');
+    expect(StringCase.of('Aa', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('Aa');
+    expect(StringCase.of('123aA', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('123aA');
+    expect(StringCase.of('123Aa', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('123Aa');
+    expect(StringCase.of('123a', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('123a');
+    expect(StringCase.of('A', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('A');
+    expect(StringCase.of('_a', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('A');
+    expect(StringCase.of('_123a', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('123a');
+    expect(StringCase.of('_123', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('123');
+    expect(StringCase.of('123', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('123');
+    expect(StringCase.of('a', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('a');
+    expect(StringCase.of('A', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('A');
+    expect(StringCase.of('_A', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('A');
+    expect(StringCase.of('_123A', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('123A');
+    expect(StringCase.of('_A', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('A');
+    expect(StringCase.of('abc_def', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('abcDef');
+    expect(StringCase.of('abc12def', StringCase.UNDER).makeMixedSeparatorCase('')).toBe('abc12def');
+});
+
 each([
     ["_A", StringCase.UNDER, true],
     ["_123A", StringCase.UNDER, true],
@@ -57,7 +99,7 @@ each([
 ])
     .describe(`isCamelCase`, (arg, param, expected) => {
         test(`'${arg}' === '${expected}'`, () => {
-            expect(StringCase.of(arg, param).isCamelCase()).toBe(expected);
+            expect(StringCase.of(arg, param).isMixedCamelCase()).toBe(expected);
         });
     });
 
@@ -81,7 +123,7 @@ each([
 ])
     .describe(`isProperCamelCase`, (arg, param, expected) => {
         test(`'${arg}' === '${expected}'`, () => {
-            expect(StringCase.of(arg, param).isProperCamelCase()).toBe(expected);
+            expect(StringCase.of(arg, param).isCamelCase()).toBe(expected);
         });
     });
 

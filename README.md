@@ -10,11 +10,32 @@ case.
 Case tests are done by pre-analyzing string content to make multiple tests for various case
 styles efficient.
 
+Case Names:
+
+* `camelCase`
+* `PascalCase`
+* `snake_case`
+* `Mixed_Snake_Case`
+* `SCREAMING_SNAKE_CASE`
+* `dot.case`
+* `Mixed.Dot.Case`
+* `SCREAMING.DOT.CASE`
+* `dash-case`
+* `Mixed-Dash-Case`
+* `SCREAMING-DASH-CASE`
+* `slash/case`
+* `Mixed/Slash/Case`
+* `SCREAMING/SLASH/CASE`
+* `space case`
+* `Mixed Space Case`
+* `SCREAMING SPACE CASE`
+
 defines `StringCase` class which takes a string as construction argument and provides on the
 instance:
 
 * Test original string for being of given case
 
+  * `.isMixedCamelCase()`
   * `.isMixedSnakeCase()`
   * `.isMixedDashCase()`
   * `.isMixedDotCase()`
@@ -29,10 +50,8 @@ instance:
   * `.isDashCase()`
   * `.isDotCase()`
   * `.isSlashCase()`
-  * `.isProperSpaceCapsCase()`
-  * `.isSpaceCapsCase()`
   * `.isSpaceCase()`
-  * `.isCamelCase()`
+  * `.isCapitalizedSpaceCase()`
   * `.hasNoUpperCase()`
   * `.hasNoLowerCase()`
   * `.hasUpperCase()`
@@ -40,7 +59,7 @@ instance:
   * `.hasLowerCaseOrUpperCase()`
   * `.isLowerCase()`
   * `.isUpperCase()`
-  * `.isProperCamelCase()`
+  * `.isCamelCase()`
   * `.isPascalCase()`
 
 * Test if can convert original string to given case
@@ -60,7 +79,7 @@ instance:
   * `.canBeMixedSpaceCase()`
   * `.canBeScreamingSpaceCase()`
   * `.canBeSpaceCase()`
-  * `.canBeSpaceCapsCase()`
+  * `.canBeCapitalizedSpaceCase()`
   * `.canBeCamelCase()`
   * `.canBeProperCamelCase()`
   * `.canBePascalCase()`
@@ -92,7 +111,7 @@ instance:
   * `.makeSlashCase()`
   * `.makeSpaceCase()`
   * `.makeScreamingSpaceCase()`
-  * `.makeSpaceCapsCase()`
+  * `.makeCapitalizedSpaceCase()`
 
 ## Install
 
