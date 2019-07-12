@@ -193,7 +193,7 @@ StringCase.prototype.isDashCase = function () { return this.only(DASH | LOWER | 
 StringCase.prototype.isDotCase = function () { return this.only(DOT | LOWER | DIGITS) && this.all(DOT | LOWER) && this.first(DOT | LOWER); };
 StringCase.prototype.isSlashCase = function () { return this.only(SLASH | LOWER | DIGITS) && this.all(SLASH | LOWER) && this.first(SLASH | LOWER); };
 StringCase.prototype.isProperSpaceCapsCase = function () { return this.only(SPACE | UPPER | LOWER | DIGITS) && this.all(SPACE | UPPER | LOWER) && this.first(UPPER); };
-StringCase.prototype.isSpaceCapsCase = function () { return this.only(SPACE | UPPER | LOWER | DIGITS) && this.all(SPACE | UPPER | LOWER) && this.first(UPPER | LOWER); };
+StringCase.prototype.isCapitalizedSpaceCase = function () { return this.only(SPACE | UPPER | LOWER | DIGITS) && this.all(SPACE | UPPER | LOWER) && this.first(UPPER); };
 StringCase.prototype.isSpaceCase = function () { return this.only(SPACE | LOWER | DIGITS) && this.all(SPACE | LOWER) && this.first(LOWER); };
 StringCase.prototype.isCamelCase = function () { return this.only(LOWER | UPPER | DIGITS) && this.all(LOWER | UPPER) && this.first(LOWER | UPPER); };
 StringCase.prototype.hasNoUpperCase = function () { return this.none(UPPER | EMPTY); };
@@ -217,7 +217,7 @@ StringCase.prototype.makeMixedSeparatorCase = function (separator, properCaps = 
     let removeSeparator = (asciiFlags(separator) & separators) !== 0;
     let wasLower = false;
     let sb = "";
-    let toUpper = properCaps;
+    let toUpper = false;
 
     for (let i = 0; i < iMax; i++) {
         const char = this.original[i];
@@ -233,21 +233,23 @@ StringCase.prototype.makeMixedSeparatorCase = function (separator, properCaps = 
                 sb += char.toLocaleUpperCase();
                 toUpper = false;
                 wasLower = false;
-            } else if (properCaps) {
-                sb += char.toLocaleLowerCase();
-                wasLower = true;
             } else {
                 if (isUpperCase(c)) {
-                    if (wasLower) sb += separator;
-                    sb += char;
-                    toUpper = false;
+                    if (wasLower) {
+                        sb += separator;
+                        sb += char;
+                    } else if (properCaps) {
+                        sb += char.toLocaleLowerCase();
+                    } else {
+                        sb += char;
+                    }
                     wasLower = false;
                 } else if (isLowerCase(c)) {
                     sb += char;
                     wasLower = true;
                 } else {
                     sb += char;
-                    toUpper = false;
+                    wasLower = false;
                 }
             }
         }
@@ -259,7 +261,7 @@ StringCase.prototype.makeCamelCase = function () {
     let sb = "";
     if (this.some(this.mySeparators)) {
         sb = this.makeMixedSeparatorCase("", true);
-        sb = sb[0].toLocaleLowerCase() + sb.substring(1)
+        sb = sb[0].toLocaleLowerCase() + sb.substring(1);
     } else if (this.only(UPPER | DIGITS) && this.first(UPPER)) {
         sb += this.original[0];
         sb += this.original.substring(1).toLocaleLowerCase();
@@ -279,12 +281,17 @@ StringCase.prototype.makePascalCase = function () {
     return s.substring(0, 1).toLocaleUpperCase() + s.substring(1);
 };
 
+StringCase.prototype.makeProperSnakeCase = function () { return this.makeMixedSeparatorCase('_', true); };
+StringCase.prototype.makeProperDotCase = function () { return this.makeMixedSeparatorCase('.', true); };
+StringCase.prototype.makeProperDashCase = function () { return this.makeMixedSeparatorCase('-', true); };
+StringCase.prototype.makeProperSlashCase = function () { return this.makeMixedSeparatorCase('/', true); };
+StringCase.prototype.makeProperSpaceCase = function () { return this.makeMixedSeparatorCase(" ", true);};
+
 StringCase.prototype.makeMixedSnakeCase = function () { return this.makeMixedSeparatorCase('_'); };
 StringCase.prototype.makeMixedDotCase = function () { return this.makeMixedSeparatorCase('.'); };
 StringCase.prototype.makeMixedDashCase = function () { return this.makeMixedSeparatorCase('-'); };
 StringCase.prototype.makeMixedSlashCase = function () { return this.makeMixedSeparatorCase('/'); };
 StringCase.prototype.makeMixedSpaceCase = function () { return this.makeMixedSeparatorCase(" ");};
-StringCase.prototype.makeMixedSpaceCapsCase = function () { return this.makeMixedSeparatorCase(" ", true);};
 
 StringCase.prototype.makeScreamingSnakeCase = function () { return this.makeMixedSnakeCase().toLocaleUpperCase();};
 StringCase.prototype.makeSnakeCase = function () { return this.makeMixedSnakeCase().toLocaleLowerCase();};
@@ -294,12 +301,12 @@ StringCase.prototype.makeScreamingDotCase = function () { return this.makeMixedD
 StringCase.prototype.makeDotCase = function () { return this.makeMixedDotCase().toLocaleLowerCase();};
 StringCase.prototype.makeScreamingSlashCase = function () { return this.makeMixedSlashCase().toLocaleUpperCase();};
 StringCase.prototype.makeSlashCase = function () { return this.makeMixedSlashCase().toLocaleLowerCase();};
-StringCase.prototype.makeSpaceCase = function () { return this.makeMixedSpaceCase().toLocaleLowerCase(); };
 StringCase.prototype.makeScreamingSpaceCase = function () { return this.makeMixedSlashCase().toLocaleUpperCase();};
+StringCase.prototype.makeSpaceCase = function () { return this.makeMixedSpaceCase().toLocaleLowerCase(); };
 
-StringCase.prototype.makeSpaceCapsCase = function () {
-    const s = this.makeMixedSpaceCapsCase();
-    return s[0] + s.substring(0).toLocaleUpperCase();
+StringCase.prototype.makeCapitalizedSpaceCase = function () {
+    const s = this.makeMixedSpaceCase();
+    return s[0] + s.substring(1).toLocaleLowerCase();
 };
 
 StringCase.prototype.canBeMixedSnakeCase = function () {
@@ -422,10 +429,10 @@ StringCase.prototype.canBeSpaceCase = function () {
     return false;
 };
 
-StringCase.prototype.canBeSpaceCapsCase = function () {
+StringCase.prototype.canBeCapitalizedSpaceCase = function () {
     if (this.only(this.mySeparators | SPACE | UPPER | LOWER | DIGITS) && this.some(LOWER | UPPER) && this.first(LOWER | UPPER)) {
-        const word = this.makeSpaceCapsCase();
-        return word !== this.original && StringCase.of(word, this.mySeparators).isSpaceCapsCase();
+        const word = this.makeCapitalizedSpaceCase();
+        return word !== this.original && StringCase.of(word, this.mySeparators).isCapitalizedSpaceCase();
     }
     return false;
 };

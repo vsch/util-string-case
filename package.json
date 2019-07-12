@@ -1,6 +1,6 @@
 {
   "name": "util-string-case",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "string case testing and conversion: mixed snake case, screaming snake case, screaming dash case, screaming dot case, screaming slash case, snake case, dash case, dot case, slash case, camel case",
   "main": "index.js",
   "license": "MIT",
