@@ -6,6 +6,9 @@ Small utility library implementing string case testing and conversion: mixed sna
 screaming snake case, screaming dash case, screaming dot case, screaming slash case, snake case,
 dash case, dot case, slash case, camel case.
 
+Case tests are done by pre-analyzing string content to make multiple tests for various case
+styles efficient.
+
 defines `StringCase` class which takes a string as construction argument and provides on the
 instance:
 
